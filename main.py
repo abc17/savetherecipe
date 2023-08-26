@@ -69,8 +69,11 @@ async def handle_message(update, context):
         response = requests.get(image_url)
         image_data = response.content
 
+        # Добавление ссылки на источник к тексту поста
+        post_text_with_source = "{}\n\n---------\nСсылка на исходный пост: {}".format(post_text, url)
+
         # Отправка изображения и текста в Telegram
-        await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text)
+        await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text_with_source)
 
     except Exception as e:
         logging.exception("Произошла ошибка при обработке запроса:")
