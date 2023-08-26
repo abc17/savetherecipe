@@ -24,10 +24,9 @@ logger = logging.getLogger(__name__)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
-    user = update.effective_user
+    # user = update.effective_user
     await update.message.reply_text(
-        "Привет! Это бот для сохранения рецептов из бесконечной ленты Инстаграма. Чтобы начать сохранять рецепты, присылайте боту ссылки на reels или посты — просто через share в инстаграме. Бот будет возвращать текст с рецептом, написанный под этим постом или рилсом. Об ошибках и пожеланиях пишите мне: @anna_abc",
-        reply_markup=ForceReply(selective=True),
+        "Привет! Это бот для сохранения рецептов из бесконечной ленты Инстаграма. Чтобы начать сохранять рецепты, присылайте боту ссылки на reels или посты — просто через share в инстаграме. Бот будет возвращать текст с рецептом, написанный под этим постом или рилсом. Об ошибках и пожеланиях пишите мне: @anna_abc"
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -91,7 +90,7 @@ def main() -> None:
     application = Application.builder().token("6556428501:AAGjXt8WrsXqZHqsgT19kDO4Z9P5w2H-8ec").build()
 
     # on different commands - answer in Telegram
-    # application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
 
     # on non command i.e message - echo the message on Telegram
