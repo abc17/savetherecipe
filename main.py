@@ -5,6 +5,16 @@ import requests
 from io import BytesIO
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+import sentry_sdk
+
+sentry_sdk.init(
+  dsn="https://3cb605fdb4e4c98ebbe6db636b23bf35@o4505773449478144.ingest.sentry.io/4505773511409664",
+
+  # Set traces_sample_rate to 1.0 to capture 100%
+  # of transactions for performance monitoring.
+  # We recommend adjusting this value in production.
+  traces_sample_rate=1.0
+)
 
 # Get instance
 L = instaloader.Instaloader()
