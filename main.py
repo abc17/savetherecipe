@@ -1,8 +1,10 @@
 import logging
 import re
+import instaloader
+import requests
+from io import BytesIO
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-import instaloader
 
 # Get instance
 L = instaloader.Instaloader()
@@ -11,11 +13,14 @@ L = instaloader.Instaloader()
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
+
+# Включение подробного логирования
+logging.basicConfig(level=logging.DEBUG)
+
 # set higher logging level for httpx to avoid all GET and POST requests being logged
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
-
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
@@ -25,12 +30,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=ForceReply(selective=True),
     )
 
-
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
     await update.message.reply_text(
         "Если что-то не работает, есть вопросы или предложения по работе бота - напишите мне @anna_abc")
-
 
 # async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 #   """Echo the user message."""
@@ -56,15 +59,21 @@ async def handle_message(update, context):
         return
 
     try:
-        # Извлечение текста из Instagram (для постов и рилс)
+        # Извлечение текста и URL изображения из Instagram (для постов и рилс)
         L = instaloader.Instaloader()
         post = instaloader.Post.from_shortcode(L.context, shortcode)
         post_text = post.caption
+        image_url = post.url
 
-        # Отправка текста
-        await update.message.reply_text(post_text)
+        # Загрузка бинарных данных изображения
+        response = requests.get(image_url)
+        image_data = response.content
+
+        # Отправка изображения и текста в Telegram
+        await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text)
 
     except Exception as e:
+        logging.exception("Произошла ошибка при обработке запроса:")
         await update.message.reply_text("Произошла ошибка при обработке запроса.")
 
 def main() -> None:
