@@ -69,10 +69,13 @@ async def handle_message(update, context):
         response = requests.get(image_url)
         image_data = response.content
 
-        # Добавление ссылки на источник к тексту поста
-        post_text_with_source = "{}\n\n---------\nСсылка на исходный пост: {}".format(post_text, url)
+        # Удаление хештегов в тексте
+        post_text_cleaned = re.sub(r'#\w+\s*', '', post_text)
 
-        # Отправка изображения и текста в Telegram
+        # Добавление ссылки на источник в конец текста
+        post_text_with_source = "{}\n\n-------\nСсылка на исходный пост: {}".format(post_text_cleaned, url)
+
+        # Отправка изображения и текста с хештегами и ссылкой на источник
         await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text_with_source)
 
         # Удаление исходного сообщения пользователя
