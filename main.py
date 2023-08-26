@@ -68,8 +68,8 @@ async def handle_message(update, context):
         response = requests.get(image_url)
         image_data = response.content
 
-        # Удаление хештегов в тексте
-        post_text_cleaned = re.sub(r'#\w+\s*', '', post_text)
+        # Удаление хештегов в тексте + trim текста
+        post_text_cleaned = re.sub(r'#\w+\s*', '', post_text).strip()
 
         # Добавление ссылки на источник в конец текста
         post_text_with_source = "{}\n\n-------\nСсылка на исходный пост: {}".format(post_text_cleaned, url)
