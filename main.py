@@ -20,42 +20,52 @@ logger = logging.getLogger(__name__)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
-    await update.message.reply_html(
-        rf"Hi {user.mention_html()}!",
+    await update.message.reply_text(
+        "Привет! Это бот для сохранения рецептов из бесконечной ленты Инстаграма. Чтобы начать сохранять рецепты, присылайте боту ссылки на reels или посты — просто через share в инстаграме. Бот будет возвращать текст с рецептом, написанный под этим постом или рилсом. Об ошибках и пожеланиях пишите мне: @anna_abc",
         reply_markup=ForceReply(selective=True),
     )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
-    await update.message.reply_text("Help!")
+    await update.message.reply_text(
+        "Если что-то не работает, есть вопросы или предложения по работе бота - напишите мне @anna_abc")
 
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Echo the user message."""
-    await update.message.reply_text(update.message.text)
+# async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+#   """Echo the user message."""
+#  await update.message.reply_text(update.message.text)
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def handle_message(update, context):
     chat_id = update.message.chat_id
     url = update.message.text
 
-    # Извлечение shortcode из ссылки на пост или рилс
-    shortcode_match = re.search(r'/([^/]+)/\?igshid=', url)
-    if shortcode_match:
-        shortcode = shortcode_match.group(1)
-        try:
-            # Извлечение текста из Instagram (для постов и рилс)
-            post = instaloader.Post.from_shortcode(L.context, shortcode)
-            post_text = post.caption
+    # Регулярное выражение для ссылок с параметром igshid и без него
+    pattern_with_igshid = r'/([^/?]+)/\??igshid='
+    pattern_without_igshid = r'/([^/?]+)/?$'
 
-            # Отправка текста
-            await update.message.reply_text(post_text)
+    shortcode_with_igshid = re.search(pattern_with_igshid, url)
+    shortcode_without_igshid = re.search(pattern_without_igshid, url)
 
-        except Exception as e:
-            await update.message.reply_text("Произошла ошибка при обработке запроса.")
+    if shortcode_with_igshid:
+        shortcode = shortcode_with_igshid.group(1)
+    elif shortcode_without_igshid:
+        shortcode = shortcode_without_igshid.group(1)
     else:
         await update.message.reply_text("Пожалуйста, отправьте ссылку на Instagram пост или рилс.")
+        return
 
+    try:
+        # Извлечение текста из Instagram (для постов и рилс)
+        L = instaloader.Instaloader()
+        post = instaloader.Post.from_shortcode(L.context, shortcode)
+        post_text = post.caption
+
+        # Отправка текста
+        await update.message.reply_text(post_text)
+
+    except Exception as e:
+        await update.message.reply_text("Произошла ошибка при обработке запроса.")
 
 def main() -> None:
     """Start the bot."""
@@ -63,7 +73,7 @@ def main() -> None:
     application = Application.builder().token("6556428501:AAGjXt8WrsXqZHqsgT19kDO4Z9P5w2H-8ec").build()
 
     # on different commands - answer in Telegram
-    #application.add_handler(CommandHandler("start", start))
+    # application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
 
     # on non command i.e message - echo the message on Telegram
