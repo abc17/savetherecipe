@@ -75,6 +75,9 @@ async def handle_message(update, context):
         # Отправка изображения и текста в Telegram
         await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text_with_source)
 
+        # Удаление исходного сообщения пользователя
+        await context.bot.delete_message(chat_id=chat_id, message_id=update.message.message_id)
+
     except Exception as e:
         logging.exception("Произошла ошибка при обработке запроса:")
         await update.message.reply_text("Произошла ошибка при обработке запроса.")
