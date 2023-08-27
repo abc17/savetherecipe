@@ -47,7 +47,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     # user = update.effective_user
     await update.message.reply_text(
-        "Привет! Это бот для сохранения рецептов из бесконечной ленты Инстаграма. Присылайте боту ссылки на reels или посты — просто через share в инстаграме. Бот будет возвращать текст с рецептом, если он написан под этим постом или рилсом. Об ошибках и пожеланиях пишите мне: @anna_abc"
+        "Бот запущен и готов принимать ссылки на посты и рилсы с рецептами в Инстаграме, чтобы сохранить их в удобном виде. Отправьте ему первую ссылку, чтобы посмотреть, как это работает. Например, эту: https://www.instagram.com/reel/Cr0g43KIznu/?igshid=MTc4MmM1YmI2Ng%3D%3D"
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
