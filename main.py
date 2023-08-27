@@ -47,7 +47,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     # user = update.effective_user
     await update.message.reply_text(
-        "Бот запущен и готов принимать ссылки на посты и рилсы с рецептами в Инстаграме, чтобы сохранить их в удобном виде. Отправьте ему первую ссылку, чтобы посмотреть, как это работает. Например, эту: https://www.instagram.com/reel/Cr0g43KIznu/?igshid=MTc4MmM1YmI2Ng%3D%3D"
+        "Бот запущен и готов принимать ссылки на посты и рилсы с рецептами в Инстаграме, чтобы сохранить их в удобном виде. Отправьте ему первую ссылку, чтобы посмотреть, как это работает. \n Например, эту: https://www.instagram.com/reel/Cr0g43KIznu/?igshid=MTc4MmM1YmI2Ng%3D%3D",
+        disable_web_page_preview=True
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
