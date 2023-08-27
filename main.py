@@ -47,7 +47,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     # user = update.effective_user
     await update.message.reply_text(
-        "Привет! Это бот для сохранения рецептов из бесконечной ленты Инстаграма. Присылайте боту ссылки на reels или посты — просто через share в инстаграме. Бот будет возвращать текст с рецептом, написанный под этим постом или рилсом. Об ошибках и пожеланиях пишите мне: @anna_abc"
+        "Привет! Это бот для сохранения рецептов из бесконечной ленты Инстаграма. Присылайте боту ссылки на reels или посты — просто через share в инстаграме. Бот будет возвращать текст с рецептом, если он написан под этим постом или рилсом. Об ошибках и пожеланиях пишите мне: @anna_abc"
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -75,7 +75,7 @@ async def handle_message(update, context):
     elif shortcode_without_igshid:
         shortcode = shortcode_without_igshid.group(1)
     else:
-        await update.message.reply_text("Пожалуйста, отправьте ссылку на Instagram пост или рилс.")
+        await update.message.reply_text("Пожалуйста, отправьте ссылку пост или рилс в Instagram .")
         return
 
     try:
@@ -103,7 +103,7 @@ async def handle_message(update, context):
 
     except Exception as e:
         logging.exception("Произошла ошибка при обработке запроса:")
-        await update.message.reply_text("Произошла ошибка при обработке запроса.")
+        await update.message.reply_text("Произошла ошибка. Проверьте, что ссылка ведет на пост или рилс в Instagram. К сожалению, ссылки из других сервисов бот пока не распознает.")
 
 def main() -> None:
     """Start the bot."""
