@@ -3,17 +3,27 @@ import re
 import instaloader
 import requests
 from io import BytesIO
-from telegram import ForceReply, Update
+from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 import sentry_sdk
+import os
+from dotenv import load_dotenv
+
+# Загрузка переменных среды из файла .env
+load_dotenv(dotenv_path=".env")
+
+# Получение значения токена из переменной среды
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+SENTRY_DSN = os.getenv("SENTRY_DSN")
 
 sentry_sdk.init(
-  dsn="https://3cb605fdb4e4c98ebbe6db636b23bf35@o4505773449478144.ingest.sentry.io/4505773511409664",
+  dsn=SENTRY_DSN,
 
   # Set traces_sample_rate to 1.0 to capture 100%
   # of transactions for performance monitoring.
   # We recommend adjusting this value in production.
-  traces_sample_rate=1.0
+  traces_sample_rate=0
 )
 
 # Get instance
@@ -32,11 +42,12 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     # user = update.effective_user
     await update.message.reply_text(
-        "Привет! Это бот для сохранения рецептов из бесконечной ленты Инстаграма. Чтобы начать сохранять рецепты, присылайте боту ссылки на reels или посты — просто через share в инстаграме. Бот будет возвращать текст с рецептом, написанный под этим постом или рилсом. Об ошибках и пожеланиях пишите мне: @anna_abc"
+        "Привет! Это бот для сохранения рецептов из бесконечной ленты Инстаграма. Присылайте боту ссылки на reels или посты — просто через share в инстаграме. Бот будет возвращать текст с рецептом, написанный под этим постом или рилсом. Об ошибках и пожеланиях пишите мне: @anna_abc"
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -96,14 +107,15 @@ async def handle_message(update, context):
 
 def main() -> None:
     """Start the bot."""
+
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6556428501:AAGjXt8WrsXqZHqsgT19kDO4Z9P5w2H-8ec").build()
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
 
-    # on non command i.e message - echo the message on Telegram
+    # on non command i.e message - ask for link to inst and download it to the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Run the bot until the user presses Ctrl-C
