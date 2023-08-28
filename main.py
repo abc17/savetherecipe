@@ -3,7 +3,7 @@ import re
 import instaloader
 import requests
 from io import BytesIO
-from telegram import Update, InputFile, InputMediaPhoto
+from telegram import Update, InputMediaPhoto
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 import sentry_sdk
 import os
@@ -35,7 +35,7 @@ sentry_sdk.init(
 # Get instance
 L = instaloader.Instaloader()
 
-#Connection to MongoDB
+# Connection to MongoDB
 client = MongoClient(DATABASE_URL)
 db = client[DATABASE_NAME]
 collection = db[DATABASE_COLLECTION]
@@ -52,6 +52,7 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
+
 
 def log_interaction(event_type, user_id, user_name, event_data):
     log_entry = {
@@ -77,6 +78,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(reply_text, disable_web_page_preview=True)
 
     log_interaction("start", user_id, user_name, {"reply_text": reply_text})
+
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
@@ -105,9 +107,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     }
     collection.insert_one(log_entry)
 
-# async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-#   """Echo the user message."""
-#  await update.message.reply_text(update.message.text)
 
 async def handle_message(update, context):
     chat_id = update.message.chat_id
@@ -163,9 +162,6 @@ async def handle_message(update, context):
         max_message_length = 900
         text_parts = [post_text_cleaned[i:i + max_message_length] for i in
                       range(0, len(post_text_cleaned), max_message_length)]
-
-        # Подготовка переменной для логирования успешного ответа бота
-        response_text = ""
 
         # Проверка, нужно ли разбивать сообщение
         if len(text_parts) == 1:
