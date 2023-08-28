@@ -93,14 +93,29 @@ async def handle_message(update, context):
         # Удаление хештегов в тексте + trim текста
         post_text_cleaned = re.sub(r'#\w+\s*', '', post_text).strip()
 
-        # Добавление ссылки на источник в конец текста
-        post_text_with_source = "{}\n\n-------\nСсылка на исходный пост: {}".format(post_text_cleaned, url)
+        # Разбиение текста на части, если его длина превышает max_message_length
+        max_message_length = 900
+        text_parts = [post_text_cleaned[i:i + max_message_length] for i in
+                      range(0, len(post_text_cleaned), max_message_length)]
 
-        # Отправка изображения и текста с хештегами и ссылкой на источник
-        await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text_with_source)
+        # Проверка, нужно ли разбивать сообщение
+        if len(text_parts) == 1:
+            # Подготовка подписи с текстом и изображением
+            post_text_with_image = "{}\n\n-------\nИсточник: {}".format(text_parts[0], url)
+            await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text_with_image)
+        else:
+            # Отправка текста с изображением в первом сообщении
+            post_text_with_image = "{}".format(text_parts[0])
+            await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text_with_image)
+
+            # Отправка оставшегося текста (без изображения) с отключением предварительного просмотра ссылок
+            for text_part in text_parts[1:]:
+                post_text_with_source = "{}\n\n-------\nИсточник: {}".format(text_part, url)
+                await update.message.reply_text(post_text_with_source, disable_web_page_preview=True)
 
         # Удаление исходного сообщения пользователя
         await context.bot.delete_message(chat_id=chat_id, message_id=update.message.message_id)
+
 
     except Exception as e:
         logging.exception("Произошла ошибка при обработке запроса:")
