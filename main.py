@@ -8,12 +8,17 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 import sentry_sdk
 import os
 from dotenv import load_dotenv
+from pymongo import MongoClient
 
 # Загрузка переменных среды из файла .env
 load_dotenv(dotenv_path=".env")
 
 # Получение значения токена из переменной среды
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
+DATABASE_COLLECTION = os.getenv("DATABASE_COLLECTION")
 
 SENTRY_DSN = os.getenv("SENTRY_DSN")
 
@@ -29,6 +34,11 @@ sentry_sdk.init(
 # Get instance
 L = instaloader.Instaloader()
 
+#Connection to MongoDB
+client = MongoClient(DATABASE_URL)
+db = client[DATABASE_NAME]
+collection = db[DATABASE_COLLECTION]
+
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -41,6 +51,7 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
+
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -116,6 +127,16 @@ async def handle_message(update, context):
         # Удаление исходного сообщения пользователя
         await context.bot.delete_message(chat_id=chat_id, message_id=update.message.message_id)
 
+        # Создание объекта для логирования
+        log_entry = {
+            "user_id": update.effective_user.id,
+            "user_name": update.effective_user.username,
+            "message": update.message.text,
+            "post_text": post_text_cleaned
+        }
+
+        # Сохранение данных в MongoDB
+        collection.insert_one(log_entry)
 
     except Exception as e:
         logging.exception("Произошла ошибка при обработке запроса:")
