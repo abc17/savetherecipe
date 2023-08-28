@@ -3,7 +3,7 @@ import re
 import instaloader
 import requests
 from io import BytesIO
-from telegram import Update
+from telegram import Update, InputFile, InputMediaPhoto
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 import sentry_sdk
 import os
@@ -81,9 +81,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
     user_name = update.effective_user.username
-    reply_text = "Если что-то не работает, есть вопросы или предложения по работе бота - напишите мне @anna_abc"
+    reply_text = "Отправьте боту ссылку на reel или пост в Инстаграме. Ответным сообщением вы получите текст, написанный под видео или фото. \n\nЕсли что-то не работает, есть вопросы или предложения по работе бота - напишите мне @anna_abc"
 
-    await update.message.reply_text(reply_text)
+    # Построение путей к файлам изображений
+    image_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "img")
+
+    media_group = []
+
+    for i in range(1, 5):
+        image_path = os.path.join(image_directory, f'{i}.jpg')
+        caption = reply_text if i == 1 else None
+        media_group.append(InputMediaPhoto(open(image_path, 'rb'), caption=caption))
+
+    # Отправка группы медиа в одном сообщении
+    await context.bot.send_media_group(update.message.chat_id, media=media_group)
 
     log_entry = {
         "timestamp": datetime.datetime.now(),
