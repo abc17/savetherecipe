@@ -47,7 +47,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     # user = update.effective_user
     await update.message.reply_text(
-        "Бот запущен и готов принимать ссылки на посты и рилсы с рецептами в Инстаграме, чтобы сохранить их в удобном виде. Отправьте ему первую ссылку, чтобы посмотреть, как это работает. \n Например, эту: https://www.instagram.com/reel/Cr0g43KIznu/?igshid=MTc4MmM1YmI2Ng%3D%3D",
+        "Отправьте первую ссылку, чтобы посмотреть, как это работает. \n\nНапример, эту: https://www.instagram.com/reel/Cr0g43KIznu/?igshid=MTc4MmM1YmI2Ng%3D%3D",
         disable_web_page_preview=True
     )
 
@@ -101,7 +101,7 @@ async def handle_message(update, context):
         # Проверка, нужно ли разбивать сообщение
         if len(text_parts) == 1:
             # Подготовка подписи с текстом и изображением
-            post_text_with_image = "{}\n\n-------\nИсточник: {}".format(text_parts[0], url)
+            post_text_with_image = "{}\n\n---\nИсточник: {}".format(text_parts[0], url)
             await update.message.reply_photo(photo=BytesIO(image_data), caption=post_text_with_image)
         else:
             # Отправка текста с изображением в первом сообщении
